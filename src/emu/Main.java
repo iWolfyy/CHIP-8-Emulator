@@ -2,20 +2,38 @@ package emu;
 
 import chip.Chip;
 
-public class Main {
+public class Main extends Thread{
+
+    private Chip chip8;
+    private ChipFrame frame;
+
+    public Main() {
+
+        chip8 = new Chip();
+        chip8.init();
+        chip8.loadProgram("pong2.c8");
+        frame = new ChipFrame(chip8);
+
+    }
+
+    public void run() {
+        //Chip 8 Emu runs at 60hz aka 60 updates per second
+        while(true) {
+            chip8.run();
+            if(chip8.needsRedraw()) {
+                frame.repaint();
+                chip8.removeDrawFlag();
+            }
+            try {
+                Thread.sleep(16);
+            } catch (InterruptedException e) {
+                //Unthrown Exception
+            }
+        }
+    }
 
     public static void main(String[] args) {
-        //Creates a 'Chip' object which represents the internal hardware.
-        Chip c = new Chip();
-
-        //Initialize Memory, Registers and Display to their starting states. (Initializes 'Chip' Class)
-        c.init();
-
-        //c.run();
-
-        //Creates the window (JFrame) and pass the chip to it so it can be drawn
-        ChipFrame frame = new ChipFrame(c);
-
-
+        Main main = new Main();
+        main.start();
     }
 }

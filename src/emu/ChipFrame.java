@@ -10,6 +10,7 @@ public class ChipFrame extends JFrame {
     private ChipPanel panel;
 
     public ChipFrame(Chip c) {
+
         //Sets the size of the Drawing Area (64 pixels scaled by 10 = 640)
         setPreferredSize(new Dimension(640,320));
         pack(); //Calculate the window size

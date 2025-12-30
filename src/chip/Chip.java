@@ -1,5 +1,11 @@
 package chip;
 
+import javax.print.attribute.standard.DateTimeAtCompleted;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+
 public class Chip {
 
     private char[] memory;  //4096KB Main Memory
@@ -17,6 +23,8 @@ public class Chip {
 
     private byte[] display; //Video Ram (64x32 = 2048 pixels)
 
+    private boolean needRedraw;
+
     public void init() {
         memory = new char[4096];
         V = new char[16];
@@ -33,6 +41,8 @@ public class Chip {
 
         display = new byte[64 * 32];
 
+        needRedraw = false;
+
     }
 
     public void run() {
@@ -42,8 +52,34 @@ public class Chip {
         System.out.println(Integer.toHexString(opcode));
 
         //Decode and Execute Opcode: Determine what the opcode means
-        switch(opcode) {
-            default:
+        switch(opcode & 0xF000) {
+
+            case 0x1000:
+                break;
+
+            case 0x2000:
+                break;
+
+            case 0x3000:
+                break;
+
+            case 0x7000:
+                break;
+
+            case 0x8000:
+
+                switch(opcode & 0x000F) {
+                    case 0x0000:
+                    default:
+                        System.err.println("Unsupported Opcode!");
+                        System.exit(0);
+                        break;
+
+                }
+
+                break;
+
+                default:
                 // If the code hits an instruction it doesn't know, it stops the program
                 System.out.println("Unsupported Opcode!");
                 System.exit(0);
@@ -58,4 +94,36 @@ public class Chip {
         return display;
     }
 
+    public boolean needsRedraw() {
+        return needRedraw;
+    }
+
+    public void removeDrawFlag() {
+        needRedraw = false;
+    }
+
+    public void loadProgram(String file) {
+        DataInputStream input = null;
+
+        try {
+             input = new DataInputStream(new FileInputStream(new File(file)));
+
+            int offset = 0;
+            while(input.available() > 0) {
+
+                memory[0x200 + offset] = (char)(input.readByte() & 0xFF);
+                offset++;
+            }
+
+        } catch (IOException e){
+            e.printStackTrace();
+            System.exit(0);
+        } finally {
+            if(input != null) {
+                try {
+                    input.close();
+                } catch (IOException e) {}
+            }
+        }
+    }
 }
